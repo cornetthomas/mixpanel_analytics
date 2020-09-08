@@ -40,7 +40,7 @@ class MixpanelAnalytics {
   String _token;
   
   // The region where data of your project will be stored - defines the endpoint to use
-  Region region;
+  Region _region;
 
   // If present and equal to true, more detailed information will be printed on error.
   bool _verbose;
@@ -136,6 +136,7 @@ class MixpanelAnalytics {
     bool verbose,
     bool useIp,
     Function onError,
+    Region region,
   }) {
     _token = token;
     _userId$ = userId$;
@@ -144,7 +145,7 @@ class MixpanelAnalytics {
     _onError = onError;
     _shouldAnonymize = shouldAnonymize ?? false;
     _shaFn = shaFn ?? _defaultShaFn;
-
+    _region = region;
     _userId$?.listen((id) => _userId = id);
   }
 
@@ -167,6 +168,7 @@ class MixpanelAnalytics {
     bool verbose,
     bool ip,
     Function onError,
+    Region region
   }) {
     _token = token;
     _userId$ = userId$;
@@ -175,6 +177,7 @@ class MixpanelAnalytics {
     _uploadInterval = uploadInterval;
     _shouldAnonymize = shouldAnonymize ?? false;
     _shaFn = shaFn ?? _defaultShaFn;
+    _region = region;
 
     _onError = onError;
 
@@ -378,7 +381,7 @@ class MixpanelAnalytics {
   Future<bool> _sendEngageEvent(String event) => _sendEvent(event, 'engage');
  
   String get endpoint {
-     switch(region) {
+     switch(_region) {
       case Region.US:
         return usEndpoint;
       case Region.EU:
