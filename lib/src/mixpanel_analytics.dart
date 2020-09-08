@@ -385,7 +385,7 @@ class MixpanelAnalytics {
       case Region.US:
         return usEndpoint;
       case Region.EU:
-       return usEndpoint;
+       return euEndpoint;
       default:
         return euEndpoint;
     }
