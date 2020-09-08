@@ -16,6 +16,11 @@ enum MixpanelUpdateOperations {
   $delete
 }
 
+enum Region {
+  US, 
+  EU
+}
+
 typedef ShaFn = String Function(String value);
 
 class MixpanelAnalytics {
@@ -33,6 +38,9 @@ class MixpanelAnalytics {
 
   // The Mixpanel token associated with your project.
   String _token;
+  
+  // The region where data of your project will be stored - defines the endpoint to use
+  Region region;
 
   // If present and equal to true, more detailed information will be printed on error.
   bool _verbose;
@@ -86,7 +94,9 @@ class MixpanelAnalytics {
   /// We can inject the client required, useful for testing
   Client http = Client();
 
-  static const String baseApi = 'https://api.mixpanel.com';
+  static const String usEndpoint = 'https://api.mixpanel.com';
+  static const String euEndpoint = 'https://api-eu.mixpanel.com';
+
 
   static const _prefsKey = 'mixpanel.analytics';
 
@@ -366,10 +376,21 @@ class MixpanelAnalytics {
   Future<bool> _sendTrackEvent(String event) => _sendEvent(event, 'track');
 
   Future<bool> _sendEngageEvent(String event) => _sendEvent(event, 'engage');
-
+ 
+  String get endpoint {
+     switch(region) {
+      case Region.US:
+        return usEndpoint;
+      case Region.EU:
+       return usEndpoint;
+      default:
+        return euEndpoint;
+    }
+  }
+  
   // Sends the event to the mixpanel API endpoint.
-  Future<bool> _sendEvent(String event, String op) async {
-    var url = '$baseApi/$op/?data=$event&verbose=${_verbose ? 1 : 0}'
+  Future<bool> _sendEvent(String event, String op) async {  
+    var url = '$endpoint/$op/?data=$event&verbose=${_verbose ? 1 : 0}'
         '&ip=${_useIp ? 1 : 0}';
     try {
       var response = await http.get(url, headers: {
@@ -389,7 +410,7 @@ class MixpanelAnalytics {
 
   // Sends the batch of events to the mixpanel API endpoint.
   Future<bool> _sendBatch(String batch, String op) async {
-    var url = '$baseApi/$op/?verbose=${_verbose ? 1 : 0}&ip=${_useIp ? 1 : 0}';
+    var url = '$endpoint/$op/?verbose=${_verbose ? 1 : 0}&ip=${_useIp ? 1 : 0}';
     try {
       var response = await http.post(url, headers: {
         'Content-type': 'application/x-www-form-urlencoded',
